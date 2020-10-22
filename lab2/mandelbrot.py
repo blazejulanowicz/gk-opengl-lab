@@ -6,8 +6,9 @@ from glfw.GLFW import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-viewport_width = 400
-viewport_height = 400
+viewport_width = 1000
+viewport_height = 1000
+max_iterations = 50
 
 def startup():
     update_viewport(None, viewport_width, viewport_height)
@@ -17,24 +18,21 @@ def startup():
 def shutdown():
     pass
 
-def mandelbrota(x, y):
+def mandelbrot(x, y):
     c = complex(x,y)
     prev_z = complex(0,0)
 
-    for i in range(1,25):
+    for i in range(1, max_iterations):
         prev_z = prev_z*prev_z + c
         if abs(prev_z) >= 2:
-            return False
-    return True
+            return glColor((i/max_iterations), (i/max_iterations)-0.1, 0.1)
+    return glColor(1.0, 0.8, 0.0)
 
 def drawSet(offset_x, offset_y, scale):
     glBegin(GL_POINTS)
     for x in range(-viewport_width,viewport_width):
         for y in range(-viewport_height, viewport_height):
-            if mandelbrota(offset_x+(x/(scale*viewport_width)), offset_y+(y/(scale*viewport_height)) ):
-                glColor(1.0, 1.0, 0.0)
-            else:
-                glColor(0.0, 0.0, 0.5)
+            mandelbrot(offset_x+(x/(scale*viewport_width)), offset_y+(y/(scale*viewport_height)))
             glVertex2f(x,y)
     glEnd()
 
