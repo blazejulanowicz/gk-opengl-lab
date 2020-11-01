@@ -7,6 +7,8 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 
 
+# KOD DO ZADANIA NA 3.0
+
 def startup():
     update_viewport(None, 400, 400)
     glClearColor(0.5, 0.5, 0.5, 1.0)

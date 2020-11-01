@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 import sys
-import numpy as np
 from glfw.GLFW import *
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-viewport_width = 500
-viewport_height = 500
+viewport_width = 1000
+viewport_height = 1000
 max_iterations = 200
 offset_x = -0.7
 offset_y = 0
@@ -81,9 +80,9 @@ def zoom_out():
     scale /= 6
 
 def mouse_button_callback(window, button, action, mods):
-    if button == GLFW_MOUSE_BUTTON_RIGHT and action == GLFW_PRESS:
+    if button == GLFW_MOUSE_BUTTON_LEFT and action == GLFW_PRESS:
         zoom_in()
-    elif button == GLFW_MOUSE_BUTTON_LEFT and action == GLFW_PRESS:
+    elif button == GLFW_MOUSE_BUTTON_RIGHT and action == GLFW_PRESS:
         zoom_out()
     render(glfwGetTime())
 
@@ -104,11 +103,14 @@ def main():
     glfwSetCursorPosCallback(window, mouse_position_callback)
 
     startup()
-    while not glfwWindowShouldClose(window):
+    if len(sys.argv) == 2 and sys.argv[1] == '--TEST':
         glfwSwapBuffers(window)
         glfwPollEvents()
+    else:
+        while not glfwWindowShouldClose(window):
+            glfwSwapBuffers(window)
+            glfwPollEvents()
     shutdown()
-
     glfwTerminate()
 
 
