@@ -36,9 +36,9 @@ def axes():
 
     glEnd()
 
-def egg_points(N):
+def generate_egg_vertices(N):
     
-    distance = 1.0/N
+    distance = 1.0/(N-1)
     vertices = np.zeros((N, N, 3))
 
     for i in range(0, N):
@@ -51,15 +51,7 @@ def egg_points(N):
 
     return vertices
 
-
-
-def render(vertices, time):
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    glLoadIdentity()
-    spin(time * 180 / math.pi)
-
-    axes()
-    N = 50
+def draw_egg_points(vertices, N):
     offset = [0, -4.5, 0]
 
     glColor3f(1.0, 1.0, 1.0)
@@ -69,12 +61,33 @@ def render(vertices, time):
             glVertex(np.add(vertices[i][j], offset))
     glEnd()
 
+def draw_egg_lines(vertices, N):
+    offset = [0, -4.5, 0]
+
+    glColor3f(1.0, 1.0, 1.0)
+    glBegin(GL_LINES)
+    for i in range(0, N-1):
+        for j in range(0, N-1):
+            glVertex(np.add(vertices[i][j], offset))
+            glVertex(np.add(vertices[i+1][j], offset))
+            glVertex(np.add(vertices[i][j], offset))
+            glVertex(np.add(vertices[i][j+1], offset))
+    glEnd()
+
+def render(N, vertices, time):
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glLoadIdentity()
+    spin(time * 180 / math.pi)
+
+    axes()
+    draw_egg_lines(vertices, N)
+    #draw_egg_points(vertices, N)
     glFlush()
 
 def spin(angle):
     glRotatef(angle, 1.0, 0.0, 0.0)
     glRotatef(angle, 0.0, 1.0, 0.0)
-    glRotatef(angle, 0.0, 0.0, 1.0)
+    #glRotatef(angle, 0.0, 0.0, 1.0)
 
 def update_viewport(window, width, height):
     if width == 0:
@@ -110,9 +123,10 @@ def main():
     glfwSwapInterval(1)
 
     startup()
-    vertices = egg_points(50)
+    N = 20
+    vertices = generate_egg_vertices(N)
     while not glfwWindowShouldClose(window):
-        render(vertices, glfwGetTime())
+        render(N, vertices, glfwGetTime())
         glfwSwapBuffers(window)
         glfwPollEvents()
     shutdown()
