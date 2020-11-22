@@ -7,6 +7,7 @@ from glfw.GLFW import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
+# ZADANIE NA 5.0
 
 torus = 40  # liczba generowanych torusow
 N = 15      # liczba "punktow" w torusie (od 10 w dol zaczyna być coraz bardziej "kwadratowy")

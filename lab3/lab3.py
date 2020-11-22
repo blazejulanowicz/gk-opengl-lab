@@ -38,7 +38,7 @@ def axes():
 
     glEnd()
 
-def generate_egg_vertices(N, offset):
+def generate_egg_vertices(offset):
     
     distance = 1.0/(N-1)
     vertices = np.zeros((N, N, 3))
@@ -54,7 +54,7 @@ def generate_egg_vertices(N, offset):
     return vertices
 
 # FUNKCJA NA ZADANIE 3.0
-def draw_egg_points(vertices, N):
+def draw_egg_points(vertices):
     glColor3f(1.0, 1.0, 1.0)
     glBegin(GL_POINTS)
     for i in range(0, N):
@@ -63,7 +63,7 @@ def draw_egg_points(vertices, N):
     glEnd()
 
 # FUNKCJA NA ZADANIE 3.5
-def draw_egg_lines(vertices, N):
+def draw_egg_lines(vertices):
     glColor3f(1.0, 1.0, 1.0)
     glBegin(GL_LINES)
     for i in range(0, N-1):
@@ -75,8 +75,8 @@ def draw_egg_lines(vertices, N):
     glEnd()
 
 # FUNKCJA NA ZADANIE 4.0
-def draw_egg_triangles(vertices, N):
-    colors = generate_colors(N)
+def draw_egg_triangles(vertices):
+    colors = generate_colors()
     glBegin(GL_TRIANGLES)
     for i in range(0, N-1):
         for j in range(0, N-1):
@@ -95,8 +95,8 @@ def draw_egg_triangles(vertices, N):
     glEnd()
 
 # FUNKCJA NA ZADANIE 4.5
-def draw_egg_strip(vertices, N):
-    colors = generate_colors(N)
+def draw_egg_strip(vertices):
+    colors = generate_colors()
     for i in range(0, N-1):
         glBegin(GL_TRIANGLE_STRIP)
         for j in range(0, N):
@@ -107,7 +107,7 @@ def draw_egg_strip(vertices, N):
         glEnd()
     
 # generowanie kolorow, aby nie pojawial sie efekt migotania tylko ladne zlewanie
-def generate_colors(N):
+def generate_colors():
     np.random.seed(seed)
     colors = np.random.random((N, N, 3))
     for i in range(0, N):
@@ -116,16 +116,16 @@ def generate_colors(N):
         colors[i][0][2] = colors[N-i-1][N-1][2]
     return colors
 
-def render(N, vertices, time):
+def render(vertices, time):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
     spin(time * 180 / math.pi)
 
     axes()
-    draw_egg_strip(vertices, N)
-    #draw_egg_triangles(vertices, N)
-    #draw_egg_lines(vertices, N)
-    #draw_egg_points(vertices, N)
+    draw_egg_strip(vertices)
+    #draw_egg_triangles(vertices)
+    #draw_egg_lines(vertices)
+    #draw_egg_points(vertices)
     glFlush()
 
 def spin(angle):
@@ -167,9 +167,9 @@ def main():
     glfwSwapInterval(1)
 
     startup()
-    vertices = generate_egg_vertices(N, [0, -4.5, 0])   # offset potrzebny aby ustawic jajko na srodku
+    vertices = generate_egg_vertices([0, -4.5, 0])   # offset potrzebny aby ustawic jajko na srodku
     while not glfwWindowShouldClose(window):
-        render(N, vertices, glfwGetTime())
+        render(vertices, glfwGetTime())
         glfwSwapBuffers(window)
         glfwPollEvents()
     shutdown()
