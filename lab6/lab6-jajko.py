@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import sys
+import math
+import numpy as np
 
 from glfw.GLFW import *
 
@@ -36,6 +38,7 @@ att_quadratic = 0.001
 
 visible_walls = 4
 images = [None, None]
+N = 10
 
 def startup():
     global images
@@ -69,7 +72,7 @@ def startup():
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 
     images[0] = Image.open("kowal.tga")
-    images[1] = Image.open("besos.tga")
+    images[1] = Image.open("grzesiek.tga")
 
     glTexImage2D(
         GL_TEXTURE_2D, 0, 3, images[0].size[0], images[0].size[1], 0,
@@ -81,7 +84,65 @@ def shutdown():
     pass
 
 
-def render(time):
+def generate_egg_vertices(offset):
+    
+    distance = 1.0/(N-1)
+    vertices = np.zeros((N, N, 3))
+
+    for i in range(0, N):
+        for j in range(0, N):
+            u = distance*i
+            v = distance*j
+            vertices[i][j][0] = (-90*pow(u,5) + 225*pow(u,4) - 270*pow(u,3) + 180*pow(u,2) - 45*u) * math.cos(math.pi * v) + offset[0]
+            vertices[i][j][1] = 160 * pow(u,4) - 320 * pow(u,3) + 160 * pow(u,2) + offset[1]
+            vertices[i][j][2] = (-90*pow(u,5) + 225*pow(u,4) - 270*pow(u,3) + 180*pow(u,2) - 45*u) * math.sin(math.pi * v) + offset[2]
+    
+    return vertices
+
+
+def draw_egg_triangles(vertices):
+    glBegin(GL_TRIANGLES)
+    distance = 1.0/(N-1)
+    for i in range(0, N-1):
+        if i < (N-1)/2:
+            for j in range(0, N-1):
+                u = (distance*i)*2
+                v = distance*j
+
+                glTexCoord2f(v,u)
+                glVertex(vertices[i][j])
+                glTexCoord2f(v,u+distance*2)
+                glVertex(vertices[i+1][j])
+                glTexCoord2f(v+distance,u)
+                glVertex(vertices[i][j+1])
+                glTexCoord2f(v+distance,u+distance*2)
+                glVertex(vertices[i+1][j+1])
+                glTexCoord2f(v+distance,u)
+                glVertex(vertices[i][j+1])
+                glTexCoord2f(v,u+distance*2)
+                glVertex(vertices[i+1][j])
+        else:
+            for j in range(0, N-1):
+                u = (distance*i)*2
+                v = distance*j
+
+                glTexCoord2f(v,1.0-(u+distance*2))
+                glVertex(vertices[i+1][j])
+                glTexCoord2f(v,1.0-u)
+                glVertex(vertices[i][j])
+                glTexCoord2f(v+distance,1.0-u)
+                glVertex(vertices[i][j+1])
+
+                glTexCoord2f(v,1.0-(u+distance*2))
+                glVertex(vertices[i+1][j])
+                glTexCoord2f(v+distance,1.0-u)
+                glVertex(vertices[i][j+1])
+                glTexCoord2f(v+distance,1.0-(u+distance*2))
+                glVertex(vertices[i+1][j+1])
+                
+    glEnd()
+
+def render(time, vertices):
     global theta
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -95,50 +156,7 @@ def render(time):
 
     glRotatef(theta, 0.0, 1.0, 0.0)
 
-    glBegin(GL_TRIANGLE_STRIP)
-    glTexCoord2f(0.0, 0.0)
-    glVertex3f(-5.0, -5.0, 0.0)
-    glTexCoord2f(1.0, 0.0)
-    glVertex3f(5.0, -5.0, 0.0)
-    glTexCoord2f(0.0, 1.0)
-    glVertex3f(-5.0, 5.0, 0.0)
-    glTexCoord2f(1.0, 1.0)
-    glVertex3f(5.0, 5.0, 0.0)
-    glEnd()
-
-    glBegin(GL_TRIANGLES)
-    if(visible_walls > 0):
-        glTexCoord2f(0.0, 0.0)
-        glVertex3f(-5.0, -5.0, 0.0)
-        glTexCoord2f(1.0, 0.0)
-        glVertex3f(5.0, -5.0, 0.0)
-        glTexCoord2f(0.5, 0.5)
-        glVertex3f(0.0, 0.0, 5.0)
-    ####
-    if(visible_walls > 1):
-        glTexCoord2f(1.0, 0.0)
-        glVertex3f(5.0, -5.0, 0.0)
-        glTexCoord2f(1.0, 1.0)
-        glVertex3f(5.0, 5.0, 0.0)
-        glTexCoord2f(0.5, 0.5)
-        glVertex3f(0.0, 0.0, 5.0)
-    ####
-    if(visible_walls > 2):
-        glTexCoord2f(1.0, 1.0)
-        glVertex3f(5.0, 5.0, 0.0)
-        glTexCoord2f(0.0, 1.0)
-        glVertex3f(-5.0, 5.0, 0.0)
-        glTexCoord2f(0.5, 0.5)
-        glVertex3f(0.0, 0.0, 5.0)
-    ####
-    if(visible_walls > 3):
-        glTexCoord2f(0.0, 1.0)
-        glVertex3f(-5.0, 5.0, 0.0)
-        glTexCoord2f(0.0, 0.0)
-        glVertex3f(-5.0, -5.0, 0.0)
-        glTexCoord2f(0.5, 0.5)
-        glVertex3f(0.0, 0.0, 5.0)
-    glEnd()
+    draw_egg_triangles(vertices)
 
     glFlush()
 
@@ -215,8 +233,9 @@ def main():
     glfwSwapInterval(1)
 
     startup()
+    vertices = generate_egg_vertices([0, -4.5, 0])
     while not glfwWindowShouldClose(window):
-        render(glfwGetTime())
+        render(glfwGetTime(), vertices)
         glfwSwapBuffers(window)
         glfwPollEvents()
     shutdown()
