@@ -236,8 +236,8 @@ def render(time):
     M_matrix = glm.rotate(glm.mat4(1.0), time, glm.vec3(1.0, 1.0, 0.0))
 
     V_matrix = glm.lookAt(
-        glm.vec3(0.0, 0.0, 1.0),
-        glm.vec3(0.0, 0.0, 0.0),
+        glm.vec3(0.0, 0.0, 12.0),
+        glm.vec3(3.0, 3.0, 3.0),
         glm.vec3(0.0, 1.0, 0.0)
     )
 
@@ -246,11 +246,15 @@ def render(time):
     M_location = glGetUniformLocation(rendering_program, "M_matrix")
     V_location = glGetUniformLocation(rendering_program, "V_matrix")
     P_location = glGetUniformLocation(rendering_program, "P_matrix")
-    glUniformMatrix4fv(M_location, 1, GL_FALSE, glm.value_ptr(M_matrix))
     glUniformMatrix4fv(V_location, 1, GL_FALSE, glm.value_ptr(V_matrix))
     glUniformMatrix4fv(P_location, 1, GL_FALSE, glm.value_ptr(P_matrix))
 
-    glDrawArrays(GL_TRIANGLES, 0, 36)
+    for i in range(10):
+        for i in range(10):
+            M_matrix = glm.translate(M_matrix, glm.vec3(1.0, 0.0, 0.0))
+            glUniformMatrix4fv(M_location, 1, GL_FALSE, glm.value_ptr(M_matrix))
+            glDrawArrays(GL_TRIANGLES, 0, 36)
+        M_matrix = glm.translate(M_matrix, glm.vec3(-10.0, 1.0, 0.0))
 
 
 def update_viewport(window, width, height):
