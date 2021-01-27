@@ -32,8 +32,12 @@ def compile_shaders():
         uniform mat4 V_matrix;
         uniform mat4 P_matrix;
 
+        void transform(int x, int y, int z) {
+            gl_Position = P_matrix * V_matrix * M_matrix * position + vec4(x,y,z,0);
+        }
+
         void main(void) {
-            gl_Position = P_matrix * V_matrix * M_matrix * position;
+            transform(gl_InstanceID % 10, gl_InstanceID/10, 0);
             vertex_color = input_color;
         }
     """
@@ -249,12 +253,10 @@ def render(time):
     glUniformMatrix4fv(V_location, 1, GL_FALSE, glm.value_ptr(V_matrix))
     glUniformMatrix4fv(P_location, 1, GL_FALSE, glm.value_ptr(P_matrix))
 
-    for i in range(10):
-        for i in range(10):
-            M_matrix = glm.translate(M_matrix, glm.vec3(1.0, 0.0, 0.0))
-            glUniformMatrix4fv(M_location, 1, GL_FALSE, glm.value_ptr(M_matrix))
-            glDrawArrays(GL_TRIANGLES, 0, 36)
-        M_matrix = glm.translate(M_matrix, glm.vec3(-10.0, 1.0, 0.0))
+    glUniformMatrix4fv(M_location, 1, GL_FALSE, glm.value_ptr(M_matrix))
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 100)
+
+    
 
 
 def update_viewport(window, width, height):
